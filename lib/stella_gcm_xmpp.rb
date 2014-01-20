@@ -31,7 +31,7 @@ class StellaGcmXmpp
       if data[:message_type] == 'ack'
         print "GCM send Success id: #{data[:message_id]}\n"
       else
-        print "GCM send Failed id: #{data[:message_id]}\n"
+        print "GCM send Failed id: #{data[:message_id]} error: #{data[:error]}\n"
       end
       call(function) unless function.nil?
     end
@@ -61,6 +61,6 @@ class StellaGcmXmpp
     self.connect
   end
   def stable_blank
-    self.send("NULL", "7573", {:type => nil})
+    self.send("NULL", "BLANK_STABLE_PACKET", {:type => nil})
   end
 end
