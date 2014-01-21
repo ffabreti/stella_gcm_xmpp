@@ -1,4 +1,5 @@
 require 'xmpp4r/client'
+require 'thread'
 require 'active_support/json'
 require 'active_support/core_ext/hash'
 
@@ -7,6 +8,8 @@ class StellaGcmXmpp
     @id = id
     @password = password
     @log = log
+    @limit = 100
+    @semaphore = Mutex.new
     Jabber::debug = debug
   end
   def connect
@@ -19,6 +22,9 @@ class StellaGcmXmpp
   end
   def callback(function = nil)
     @client.add_message_callback do |m|
+      @semaphore.synchronize do
+        @limit += 1
+      end
       begin
         result = Hash.from_xml(m.to_s).with_indifferent_access
       rescue
@@ -30,9 +36,9 @@ class StellaGcmXmpp
         return self.fail
       end
       if data[:message_type] == 'ack'
-        print "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] GCM send Success id: #{data[:message_id]}\n" if @log && data[:message_id].to_s != 'BLANK_STABLE_PACKET'
+        print "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] GCM send Success id: #{data[:message_id]}, limit: #{@limit}\n" if @log
       else
-        print "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] GCM send Failed id: #{data[:message_id]} error: #{data[:error]}\n" if @log && data[:message_id].to_s != 'BLANK_STABLE_PACKET'
+        print "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] GCM send Failed id: #{data[:message_id]} error: #{data[:error]}\n" if @log
       end
       call(function) unless function.nil?
     end
@@ -51,7 +57,15 @@ class StellaGcmXmpp
                #{json.to_json}
              </gcm>
             </message>"
+    if @limit < 1
+      print "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] ait...GCM limit"
+      sleep 1
+      return self.send(to, message_id, data)
+    end
     @client.send msg
+    @semaphore.synchronize do
+      @limit -= 1
+    end
   end
   def disconnect
     @client.close
