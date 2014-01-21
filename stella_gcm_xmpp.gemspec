@@ -8,8 +8,8 @@ Gem::Specification.new do |s|
   s.email = 'aqure84@naver.com'
   s.files = ["lib/stella_gcm_xmpp.rb"]
   s.homepage = 'http://www.forelf.com'
-  s.add_dependency("xmpp4r")
-  s.add_dependency("active_support")
+  s.add_dependency("xmpp4r", '~> 0')
+  s.add_dependency("active_support", '~> 3.0')
   s.required_ruby_version     = ">= 1.9"
   s.required_rubygems_version = ">= 1.3.6"
   s.rubyforge_project         = "stella_gcm_xmpp"

@@ -3,9 +3,10 @@ require 'active_support/json'
 require 'active_support/core_ext/hash'
 
 class StellaGcmXmpp
-  def initialize(id, password, debug = false)
+  def initialize(id, password, debug = false, log = false)
     @id = id
     @password = password
+    @log = log
     Jabber::debug = debug
   end
   def connect
@@ -21,7 +22,7 @@ class StellaGcmXmpp
       begin
         result = Hash.from_xml(m.to_s).with_indifferent_access
       rescue
-        return
+        return self.fail
       end
       begin
         data = JSON.parse(result[:message][:gcm]).with_indifferent_access
@@ -29,15 +30,15 @@ class StellaGcmXmpp
         return self.fail
       end
       if data[:message_type] == 'ack'
-        print "GCM send Success id: #{data[:message_id]}\n"
+        print "[#{Time.now.strftime("%Y-%m-%d %H:%I:%S")}] GCM send Success id: #{data[:message_id]}\n" if @log && data[:message_id].to_s != 'BLANK_STABLE_PACKET'
       else
-        print "GCM send Failed id: #{data[:message_id]} error: #{data[:error]}\n"
+        print "[#{Time.now.strftime("%Y-%m-%d %H:%I:%S")}] GCM send Failed id: #{data[:message_id]} error: #{data[:error]}\n" if @log && data[:message_id].to_s != 'BLANK_STABLE_PACKET'
       end
       call(function) unless function.nil?
     end
   end
   def fail
-    print "GCM send Critical Error\n"
+    print "[#{Time.now.strftime("%Y-%m-%d %H:%I:%S")}] GCM send Critical Error\n" if @log
   end
   def send(to, message_id, data)
     json = {:to => to,
