@@ -30,15 +30,15 @@ class StellaGcmXmpp
         return self.fail
       end
       if data[:message_type] == 'ack'
-        print "[#{Time.now.strftime("%Y-%m-%d %H:%I:%S")}] GCM send Success id: #{data[:message_id]}\n" if @log && data[:message_id].to_s != 'BLANK_STABLE_PACKET'
+        print "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] GCM send Success id: #{data[:message_id]}\n" if @log && data[:message_id].to_s != 'BLANK_STABLE_PACKET'
       else
-        print "[#{Time.now.strftime("%Y-%m-%d %H:%I:%S")}] GCM send Failed id: #{data[:message_id]} error: #{data[:error]}\n" if @log && data[:message_id].to_s != 'BLANK_STABLE_PACKET'
+        print "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] GCM send Failed id: #{data[:message_id]} error: #{data[:error]}\n" if @log && data[:message_id].to_s != 'BLANK_STABLE_PACKET'
       end
       call(function) unless function.nil?
     end
   end
   def fail
-    print "[#{Time.now.strftime("%Y-%m-%d %H:%I:%S")}] GCM send Critical Error\n" if @log
+    print "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] GCM send Critical Error\n" if @log
   end
   def send(to, message_id, data)
     json = {:to => to,
