@@ -36,9 +36,9 @@ class StellaGcmXmpp
         return self.fail
       end
       if data[:message_type] == 'ack'
-        print "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] GCM send Success id: #{data[:message_id]}, limit: #{@limit}\n" if @log
+        print "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] GCM send Success id: #{data[:message_id]}, limit: #{@limit}\n" if @log && data[:message_id].to_s != 'BLANK_STABLE_PACKET'
       else
-        print "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] GCM send Failed id: #{data[:message_id]} error: #{data[:error]}\n" if @log
+        print "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] GCM send Failed id: #{data[:message_id]} error: #{data[:error]}\n" if @log && data[:message_id].to_s != 'BLANK_STABLE_PACKET'
       end
       call(function) unless function.nil?
     end
@@ -58,7 +58,7 @@ class StellaGcmXmpp
              </gcm>
             </message>"
     if @limit < 1
-      print "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] ait...GCM limit"
+      print "[#{Time.now.strftime("%Y-%m-%d %H:%M:%S")}] wait...GCM limit"
       sleep 1
       return self.send(to, message_id, data)
     end
